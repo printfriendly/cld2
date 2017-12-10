@@ -18,20 +18,19 @@ module CLD
 
   ffi_lib File.join(File.expand_path(File.dirname(__FILE__)), '..', 'ext', 'cld', 'libcld2.' + suffix)
   
-  def self.detect_language(text, verbose=false, is_plain_text=true)
+  def self.detect_language(text, is_plain_text=true)
     result = detect_language_ext(text.to_s, is_plain_text)
     result_hash = Hash[ result.members.
       select {|member| ["name", "code", "reliable"].include? member.to_s}.
       map {|member| [member.to_sym, result[member]]} ]
-
-    if verbose
-      result_hash[:top_langs] = get_top_languages(result[:lang_results_ptr])
-      result_hash[:chunks] = get_chunk_results(result[:chunks_results_ptr], result[:num_chunks], text)
-    end
-
     result_hash
   end
 
+  def self.detect_language_summary(text, is_plain_text=true) 
+    result_hash = detect_language(text, is_plain_text)
+    result_hash[:top_langs] = get_top_languages(result[:lang_results_ptr])
+    result_hash[:chunks] = get_chunk_results(result[:chunks_results_ptr], result[:num_chunks], text)
+  end
 
   private
 
