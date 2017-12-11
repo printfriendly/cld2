@@ -20,7 +20,8 @@ module CLD
   private
 
   class ResultValue < FFI::Struct
-    layout  :name, :string,
+    layout  :lang, :int,
+            :name, :string,
             :code, :string,
             :reliable, :bool
 
@@ -33,7 +34,7 @@ module CLD
     end
 
     def result
-      {name: self[:name], code: self[:code], reliable: self[:reliable]}
+      {lang: self[:lang], name: self[:name], code: self[:code], reliable: self[:reliable]}
     end
   end
 

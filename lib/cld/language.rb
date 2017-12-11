@@ -620,4 +620,6 @@ module CLD
   )
 
   attach_function "language_from_name", "languageFromName", [:string], Language
+  attach_function "code_from_language", "codeFromLanguage", [Language], :string
+  attach_function "name_from_language", "nameFromLanguage", [Language], :string
 end

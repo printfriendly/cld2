@@ -8,6 +8,7 @@
 using namespace CLD2;
 
 typedef struct {
+  Language lang;
   const char *code;
   int percent;
   double score;
@@ -16,12 +17,14 @@ typedef struct {
 // Conveys the same information as CLD::ResultChunk, but contains language code
 // instead of CLD's internal language representation.
 typedef struct {
+  Language lang;
   int offset;
   uint16 bytes;
   const char *langcode;
 } ReturnChunk;
 
 typedef struct {
+  Language lang;
   const char *name;
   const char *code;
   bool reliable;
@@ -31,6 +34,7 @@ typedef struct {
 } SUMMARY_RESULT;
 
 typedef struct {
+  Language lang;
   const char *name;
   const char *code;
   bool reliable;
@@ -39,6 +43,14 @@ typedef struct {
 extern "C" {
   Language languageFromName(const char* src) {
     return GetLanguageFromName(src);
+  }
+
+  const char* codeFromLanguage(Language lang) {
+      return LanguageCode(lang);
+  }
+
+  const char* nameFromLanguage(Language lang) {
+      return LanguageName(lang);
   }
 
   RESULT detectLanguageExt(
@@ -70,6 +82,7 @@ extern "C" {
                           &is_reliable);
 
     RESULT res;
+    res.lang = lang;
     res.name = LanguageName(lang);
     res.code = LanguageCode(lang);
     res.reliable = is_reliable;
@@ -77,7 +90,7 @@ extern "C" {
   }
 
 
-  SUMMARY_RESULT detectLanguageSummaryExt(
+  SUMMARY_RESULT* detectLanguageSummaryExt(
                               const char * src,
                               bool is_plain_text,
                               const char* content_language_hint,
@@ -110,6 +123,7 @@ extern "C" {
     // Construct language results to return
     LanguageResult *langresults = new LanguageResult[3];
     for (int i = 0; i < 3; i++) {
+      langresults[i].lang = language3[i];
       langresults[i].code = LanguageCode(language3[i]);
       langresults[i].percent = percent3[i];
       langresults[i].score = normalized_score3[i];
@@ -122,17 +136,25 @@ extern "C" {
       ResultChunk rc = resultchunkvector[i];
       returnchunkptr[i].offset = rc.offset;
       returnchunkptr[i].bytes = rc.bytes;
-      returnchunkptr[i].langcode = LanguageCode(static_cast<Language>(rc.lang1));
+      returnchunkptr[i].lang = static_cast<Language>(rc.lang1);
+      returnchunkptr[i].langcode = LanguageCode(returnchunkptr[i].lang);
     }
 
-    SUMMARY_RESULT res;
-    res.name = LanguageName(lang);
-    res.code = LanguageCode(lang);
-    res.reliable = is_reliable;
-    res.langresults = langresults;
-    res.num_chunks = num_chunks;
-    res.returnchunksptr = returnchunkptr;
+    SUMMARY_RESULT* res = new SUMMARY_RESULT;
+    res->lang = lang;
+    res->name = LanguageName(lang);
+    res->code = LanguageCode(lang);
+    res->reliable = is_reliable;
+    res->langresults = langresults;
+    res->num_chunks = num_chunks;
+    res->returnchunksptr = returnchunkptr;
     return res;
+  }
+
+  void freeSummaryResult(SUMMARY_RESULT *result) {
+    delete[] result->langresults;
+    delete[] result->returnchunksptr;
+    delete result;
   }
 }
 

@@ -9,27 +9,56 @@ module CLD
                                         tld: nil,              # "us"
                                         encoding: Encoding[:UNKNOWN_ENCODING],
                                         language: Language[:UNKNOWN_LANGUAGE])
-    detect_with_summary(text,
-                        plain_text: plain_text,
-                        content_language: content_language,
-                        tld: tld,
-                        encoding: encoding,
-                        language: language).result(text)
+      summary = detect_with_summary(text,
+                  plain_text: plain_text,
+                  content_language: content_language,
+                  tld: tld,
+                  encoding: encoding,
+                  language: language)
+      result = summary.result
+      summary.delete!
+      result
   end
 
+  def self.detect_language_with_full_summary(text,
+                                             plain_text: true,
+                                             content_language: nil, # "us,en"
+                                             tld: nil,              # "us"
+                                             encoding: Encoding[:UNKNOWN_ENCODING],
+                                             language: Language[:UNKNOWN_LANGUAGE])
+    summary = detect_with_summary(text,
+                plain_text: plain_text,
+                content_language: content_language,
+                tld: tld,
+                encoding: encoding,
+                language: language)
+    result = summary.result(text)
+    summary.delete!
+    result
+  end
+
+
+  # Returns a summary reference object.
+  # The #delete! method must be called when the summary object is no longer used,
+  # or there will be memory leaks.
+  # Use CLD.detect_language_with_summary or CLD.detect_language_with_full_summary to
+  # prevent explicity memory management as those methods copies the content of the
+  # summary object into a Hash and frees the memory immediately.
   def self.detect_with_summary(text,
                                plain_text: true,
                                content_language: nil, # "us,en"
                                tld: nil,              # "us"
                                encoding: Encoding[:UNKNOWN_ENCODING],
                                language: Language[:UNKNOWN_LANGUAGE])
-    detect_language_summary_ext(text, plain_text, content_language, tld, encoding, language)
+    summary = detect_language_summary_ext(text, plain_text, content_language, tld, encoding, language)
+    summary
   end
 
   private
 
-  class SummaryResultValue < FFI::Struct
-    layout  :name, :string,
+  class SummaryResultReference < FFI::Struct
+    layout  :lang, :int,
+            :name, :string,
             :code, :string,
             :reliable, :bool,
             :lang_results_ptr, :pointer,
@@ -46,6 +75,7 @@ module CLD
 
     def result(original_text=nil)
       r = {
+        lang: self[:lang],
         name: self[:name],
         code: self[:code],
         reliable: self[:reliable],
@@ -54,6 +84,10 @@ module CLD
       }
       r[:chunks] = chunks(original_text) if original_text
       r
+    end
+
+    def delete!
+      CLD.free_summary_result(pointer)
     end
 
     # Reconstructs the top languages detected and their scores given a pointer to the array.
@@ -69,8 +103,9 @@ module CLD
     def chunks(original_text)
       chunks_arr = self.class.get_array_from_ptr(self[:chunks_results_ptr], self[:num_chunks], Chunk)
       chunks_arr.map {|chunk| {
-        content: original_text.byteslice(chunk[:offset], chunk[:bytes]),
-        code: chunk[:code]}
+        lang: chunk[:lang],
+        code: chunk[:code],
+        content: original_text.byteslice(chunk[:offset], chunk[:bytes])}
       }
     end
 
@@ -82,16 +117,19 @@ module CLD
   end
 
   class LanguageResult < FFI::Struct
-    layout  :code, :string,
+    layout  :lang, :int,
+            :code, :string,
             :percent, :int,
             :score, :double
   end
 
   class Chunk < FFI::Struct
-    layout  :offset, :int,
+    layout  :lang, :int,
+            :offset, :int,
             :bytes, :uint16,
             :code, :string
   end
 
-  attach_function "detect_language_summary_ext", "detectLanguageSummaryExt", [:buffer_in, :bool, :string, :string, Encoding, Language], SummaryResultValue.by_value
+  attach_function "detect_language_summary_ext", "detectLanguageSummaryExt", [:buffer_in, :bool, :string, :string, Encoding, Language], SummaryResultReference.by_ref
+  attach_function "free_summary_result", "freeSummaryResult", [:pointer], :void
 end
