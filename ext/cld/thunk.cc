@@ -13,7 +13,7 @@ typedef struct {
   double score;
 } LanguageResult;
 
-// Conveys the same information as CLD::ResultChunk, but contains language code 
+// Conveys the same information as CLD::ResultChunk, but contains language code
 // instead of CLD's internal language representation.
 typedef struct {
   int offset;
@@ -28,22 +28,70 @@ typedef struct {
   LanguageResult *langresults;
   int num_chunks;
   ReturnChunk *returnchunksptr;
+} SUMMARY_RESULT;
+
+typedef struct {
+  const char *name;
+  const char *code;
+  bool reliable;
 } RESULT;
 
 extern "C" {
+  Language languageFromName(const char* src) {
+    return GetLanguageFromName(src);
+  }
 
-  RESULT detectLanguageThunkInt(const char * src, bool is_plain_text) {
+  RESULT detectLanguageExt(
+                      const char * src,
+                      bool is_plain_text,
+                      const char* tld_hint,
+                      int encoding_hint,
+                      Language language_hint) {
+    bool is_reliable;
+    double normalized_score3[3];
+    Language language3[3];
+    int percent3[3];
+    int text_bytes;
+
+    // Note there isn't an ExtDetectLanguage function,
+    // so we'll use ExtDetectLanguageSummar instead.
+    Language lang;
+    lang = ExtDetectLanguageSummary(
+                          src,
+                          strlen(src),
+                          is_plain_text,
+                          tld_hint,
+                          encoding_hint,
+                          language_hint,
+                          language3,
+                          percent3,
+                          normalized_score3,
+                          &text_bytes,
+                          &is_reliable);
+
+    RESULT res;
+    res.name = LanguageName(lang);
+    res.code = LanguageCode(lang);
+    res.reliable = is_reliable;
+    return res;
+  }
+
+
+  SUMMARY_RESULT detectLanguageSummaryExt(
+                              const char * src,
+                              bool is_plain_text,
+                              const char* content_language_hint,
+                              const char* tld_hint,
+                              int encoding_hint,
+                              Language language_hint) {
     const int flags = 0;  // no flags
-    const char* tld_hint = NULL;
-    const int encoding_hint = UNKNOWN_ENCODING;
-    const Language language_hint = UNKNOWN_LANGUAGE;
-    const CLDHints cldhints = {NULL, tld_hint, encoding_hint, language_hint};  
+    const CLDHints cldhints = {content_language_hint, tld_hint, encoding_hint, language_hint};
     Language language3[3];
     int percent3[3];
     double normalized_score3[3];
     ResultChunkVector resultchunkvector;
     int text_bytes;
-    bool is_reliable;    
+    bool is_reliable;
     Language lang;
 
     lang = ExtDetectLanguageSummary(
@@ -60,7 +108,7 @@ extern "C" {
                           &is_reliable);
 
     // Construct language results to return
-    LanguageResult *langresults = new LanguageResult [3];
+    LanguageResult *langresults = new LanguageResult[3];
     for (int i = 0; i < 3; i++) {
       langresults[i].code = LanguageCode(language3[i]);
       langresults[i].percent = percent3[i];
@@ -77,7 +125,7 @@ extern "C" {
       returnchunkptr[i].langcode = LanguageCode(static_cast<Language>(rc.lang1));
     }
 
-    RESULT res;
+    SUMMARY_RESULT res;
     res.name = LanguageName(lang);
     res.code = LanguageCode(lang);
     res.reliable = is_reliable;

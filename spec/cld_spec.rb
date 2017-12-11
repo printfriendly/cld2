@@ -28,14 +28,14 @@ describe CLD do
     end
 
     context "French in HTML - using CLD html " do
-      subject { CLD.detect_language("<html><head><body><script>A large amount of english in the script which should be ignored if using html in detect_language.</script><p>plus ça change, plus c'est la même chose</p></body></html>", false) }
+      subject { CLD.detect_language("<html><head><body><script>A large amount of english in the script which should be ignored if using html in detect_language.</script><p>plus ça change, plus c'est la même chose</p></body></html>", plain_text: false) }
 
       it { expect(subject[:name]).to eq("FRENCH") }
       it { expect(subject[:code]).to eq("fr") }
 
     end
     context "French in HTML - using CLD text " do
-      subject { CLD.detect_language("<html><head><body><script>A large amount of english in the script which should be ignored if using html in detect_language.</script><p>plus ça change, plus c'est la même chose</p></body></html>", true) }
+      subject { CLD.detect_language("<html><head><body><script>A large amount of english in the script which should be ignored if using html in detect_language.</script><p>plus ça change, plus c'est la même chose</p></body></html>", plain_text: true) }
 
       it { expect(subject[:name]).to eq("ENGLISH") }
       it { expect(subject[:code]).to eq("en") }

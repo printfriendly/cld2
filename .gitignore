@@ -2,6 +2,7 @@
 *.rbc
 .bundle
 .config
+.vscode
 .yardoc
 .gitignore
 vendor
@@ -19,6 +20,7 @@ test/version_tmp
 tmp
 CMakeCache.txt
 CMakeFiles
+Makefile
 *.cmake
 *.log
 build/
