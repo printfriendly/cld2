@@ -622,4 +622,18 @@ module CLD
   attach_function "language_from_name", "languageFromName", [:string], Language
   attach_function "code_from_language", "codeFromLanguage", [Language], :string
   attach_function "name_from_language", "nameFromLanguage", [Language], :string
+
+  module LanguageDecoder
+    def lang_id
+      Language[lang]
+    end
+
+    def code
+      CLD.code_from_language(lang)
+    end
+
+    def name
+      CLD.name_from_language(lang)
+    end
+  end
 end

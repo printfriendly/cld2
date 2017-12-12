@@ -9,24 +9,19 @@ using namespace CLD2;
 
 typedef struct {
   Language lang;
-  const char *code;
   int percent;
   double score;
 } LanguageResult;
 
-// Conveys the same information as CLD::ResultChunk, but contains language code
-// instead of CLD's internal language representation.
+// Conveys the same information as CLD::ResultChunk
 typedef struct {
   Language lang;
   int offset;
   uint16 bytes;
-  const char *langcode;
 } ReturnChunk;
 
 typedef struct {
   Language lang;
-  const char *name;
-  const char *code;
   bool reliable;
   LanguageResult *langresults;
   int num_chunks;
@@ -35,8 +30,6 @@ typedef struct {
 
 typedef struct {
   Language lang;
-  const char *name;
-  const char *code;
   bool reliable;
 } RESULT;
 
@@ -83,8 +76,6 @@ extern "C" {
 
     RESULT res;
     res.lang = lang;
-    res.name = LanguageName(lang);
-    res.code = LanguageCode(lang);
     res.reliable = is_reliable;
     return res;
   }
@@ -124,7 +115,6 @@ extern "C" {
     LanguageResult *langresults = new LanguageResult[3];
     for (int i = 0; i < 3; i++) {
       langresults[i].lang = language3[i];
-      langresults[i].code = LanguageCode(language3[i]);
       langresults[i].percent = percent3[i];
       langresults[i].score = normalized_score3[i];
     }
@@ -137,13 +127,10 @@ extern "C" {
       returnchunkptr[i].offset = rc.offset;
       returnchunkptr[i].bytes = rc.bytes;
       returnchunkptr[i].lang = static_cast<Language>(rc.lang1);
-      returnchunkptr[i].langcode = LanguageCode(returnchunkptr[i].lang);
     }
 
     SUMMARY_RESULT* res = new SUMMARY_RESULT;
     res->lang = lang;
-    res->name = LanguageName(lang);
-    res->code = LanguageCode(lang);
     res->reliable = is_reliable;
     res->langresults = langresults;
     res->num_chunks = num_chunks;
