@@ -21,7 +21,7 @@ module CLD
                           tld: nil,              # "us"
                           encoding: Encoding[:UNKNOWN_ENCODING],
                           language: Language[:UNKNOWN_LANGUAGE])
-    summary_result = detect_language_summary_ext(text, plain_text, content_language, tld, encoding, language)
+    summary_result = detect_language_summary_ext(text.to_s, plain_text, content_language, tld, encoding, language)
     summary = Summary.new(summary_result) # copy summary_result to summary
     summary_result.delete!                # free summary_result memory
     summary                               # return copied summary
@@ -43,6 +43,8 @@ module CLD
     def to_h(original_text=nil)
       h = {
         lang_id:   lang_id,
+        name:      name,
+        code:      code,
         reliable:  @reliable,
         top_langs: @top_langs.map(&:to_h)
       }

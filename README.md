@@ -11,16 +11,14 @@ Blazing-fast language detection for Ruby provided by Google Chrome's Compact Lan
 
 ```ruby
 CLD.detect_language("plus ça change, plus c'est la même chose")
-# => {:name => "FRENCH", :code => "fr", :reliable => true}
+# => {:lang_id=>4, :code=>"fr", :name=>"FRENCH", :reliable=>true}
 
-Verbose results (optional, defaulted to false): also return up to 3 top languages detected for the document and their respective scores, as well as individual results for each chunk from the input text.
-CLD.detect_language("How much wood would a woodchuck chuck", true)
-# => {:name=>"ENGLISH", :code=>"en", :reliable=>true, :top_langs=>[{:code=>"en", :percent=>97, :score=>943.0}], :chunks=>[{:content=>"How much wood would a woodchuck chuck", :code=>"un"}]} 
+Summary result: also return up to 3 top languages detected for the document and their respective scores, as well as individual results for each chunk from the input text.
+CLD.detect_language_summary("How much wood would a woodchuck chuck")
+# => {:lang_id=>0, :name=>"ENGLISH", :code=>"en", :reliable=>true, :top_langs=>[{:lang_id=>0, :code=>"en", :name=>"ENGLISH", :percent=>97, :score=>943.0}], :chunks=>[{:lang_id=>26, :code=>"un", :name=>"Unknown", :content=>"How much wood would a woodchuck chuck"}]}
 
-CLD.detect_language("हैदराबाद उच्चार ऐका सहाय्य माहिती तेलुगू హైదరాబాదు حیدر آباد", true)
-# => {:name=>"MARATHI", :code=>"mr", :reliable=>true, :top_langs=>[{:code=>"mr", :percent=>69, :score=>387.0}, {:code=>"te", :percent=>18, :score=>1024.0}], :chunks=>[{:content=>"हैदराबाद उच्चार ऐका सहाय्य माहिती तेलुगू ", :code=>"mr"}, {:content=>"హైదరాబాదు ", :code=>"te"}, {:content=>"حیدر آباد", :code=>"un"}]}
-
-
+CLD.detect_language_summary("हैदराबाद उच्चार ऐका सहाय्य माहिती तेलुगू హైదరాబాదు حیدر آباد")
+# => {:lang_id=>64, :name=>"MARATHI", :code=>"mr", :reliable=>true, :top_langs=>[{:lang_id=>64, :code=>"mr", :name=>"MARATHI", :percent=>69, :score=>387.0}, {:lang_id=>44, :code=>"te", :name=>"TELUGU", :percent=>18, :score=>1024.0}], :chunks=>[{:lang_id=>64, :code=>"mr", :name=>"MARATHI", :content=>"हैदराबाद उच्चार ऐका सहाय्य माहिती तेलुगू "}, {:lang_id=>44, :code=>"te", :name=>"TELUGU", :content=>"హైదరాబాదు "}, {:lang_id=>26, :code=>"un", :name=>"Unknown", :content=>"حیدر آباد"}]}}
 ```
 
 ## Installation
