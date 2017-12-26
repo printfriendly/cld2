@@ -5,7 +5,7 @@
 ![image](https://circleci.com/gh/BanjoInc/cld2.png?circle-token=6e9c5831521447a5005be3f4d33a221e9d2ae1d4)
 
 Based on Jason Toy's CLD v1.0.
-Blazing-fast language detection for Ruby provided by Google Chrome's Compact Language Detector v2.0
+Blazing-fast language detection for Ruby provided by Google Chrome's [Compact Language Detector v2.0](https://github.com/CLD2Owners/cld2)
 
 ## How to Use
 
