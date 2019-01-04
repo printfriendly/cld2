@@ -35,7 +35,8 @@ CONFIG['warnflags'].slice!(/ -Wmisleading-indentation/)
 CONFIG['warnflags'].slice!(/ -Wimplicit-fallthrough=0/)
 CONFIG['warnflags'].slice!(/ -Wduplicated-cond/)
 CONFIG['warnflags'].slice!(/ -Wrestrict/)
-CONFIG['warnflags'] += ' -Wno-narrowing'
+CONFIG['cflags'] += ' -Wno-narrowing'
+CONFIG['cxxflags'] += ' -Wno-narrowing'
 
 if have_library('stdc++')
   create_makefile('libcld2')
