@@ -36,7 +36,7 @@ CONFIG['warnflags'].slice!(/ -Wimplicit-fallthrough=0/)
 CONFIG['warnflags'].slice!(/ -Wduplicated-cond/)
 CONFIG['warnflags'].slice!(/ -Wrestrict/)
 CONFIG['cflags'] += ' -Wno-narrowing -std=c++98'
-CONFIG['cxxflags'] += ' -Wno-narrowing -std=c++98'
+CONFIG['cppflags'] += ' -Wno-narrowing -std=c++98'
 
 if have_library('stdc++')
   create_makefile('libcld2')
